@@ -1,0 +1,96 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+
+  sides        Side[]
+  casesCreated Case[]   @relation("CreatedCases")
+}
+
+model Case {
+  id              String    @id @default(cuid())
+  title           String
+  createdAt       DateTime  @default(now())
+  createdByUserId String
+
+  createdBy       User      @relation("CreatedCases", fields: [createdByUserId], references: [id])
+
+  sides           Side[]
+  documents       Document[]
+  turns           Turn[]
+  verdict         Verdict?
+}
+
+model Side {
+  id        String   @id @default(cuid())
+  caseId    String
+  userId    String
+  role      SideRole
+
+  case      Case     @relation(fields: [caseId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  documents Document[]
+  turns     Turn[]
+}
+
+enum SideRole {
+  CLAIMANT
+  RESPONDENT
+}
+
+model Document {
+  id         String   @id @default(cuid())
+  caseId     String
+  sideId     String
+  fileUrl    String?
+  text       String
+  createdAt  DateTime @default(now())
+
+  case       Case     @relation(fields: [caseId], references: [id])
+  side       Side     @relation(fields: [sideId], references: [id])
+}
+
+model Turn {
+  id        String   @id @default(cuid())
+  caseId    String
+  sideId    String
+  message   String
+  order     Int
+  createdAt DateTime @default(now())
+
+  case      Case     @relation(fields: [caseId], references: [id])
+  side      Side     @relation(fields: [sideId], references: [id])
+}
+
+model Verdict {
+  id        String   @id @default(cuid())
+  caseId    String   @unique
+  summary   String
+  reasoning String
+  finalText String
+  keyClaims Json     // Store claimant and respondent claims
+  evidence  Json     // Store evidence credibility analysis
+  precedents Json    // Store legal precedents
+  nextSteps Json     // Store suggested next steps
+  createdAt DateTime @default(now())
+
+  case      Case     @relation(fields: [caseId], references: [id])
+}

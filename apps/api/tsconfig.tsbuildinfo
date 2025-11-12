@@ -1,0 +1,1 @@
+{"root":["./src/index.ts","./src/lib/index.ts","./src/middleware/usermiddleware.ts","./src/routes/v1/index.ts","./src/routes/v1/search.ts","./src/routes/v1/turns.ts","./src/routes/v1/verdict.ts","./src/routes/v1/auth/auth.ts","./src/routes/v1/case/case.ts","./src/routes/v1/document/documents.ts","./src/types/shims.d.ts","./src/utils/sendemail.ts"],"version":"5.9.2"}
